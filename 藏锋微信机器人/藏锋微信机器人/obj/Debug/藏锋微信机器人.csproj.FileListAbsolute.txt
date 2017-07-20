@@ -1,0 +1,15 @@
+E:\project\weixinRobot\藏锋微信机器人\藏锋微信机器人\bin\Debug\藏锋微信机器人.exe
+E:\project\weixinRobot\藏锋微信机器人\藏锋微信机器人\bin\Debug\藏锋微信机器人.pdb
+E:\project\weixinRobot\藏锋微信机器人\藏锋微信机器人\bin\Debug\Gma.QrCodeNet.Encoding.Net35.dll
+E:\project\weixinRobot\藏锋微信机器人\藏锋微信机器人\obj\Debug\藏锋微信机器人.csprojResolveAssemblyReference.cache
+E:\project\weixinRobot\藏锋微信机器人\藏锋微信机器人\obj\Debug\藏锋微信机器人.Properties.Resources.resources
+E:\project\weixinRobot\藏锋微信机器人\藏锋微信机器人\obj\Debug\藏锋微信机器人.csproj.GenerateResource.Cache
+E:\project\weixinRobot\藏锋微信机器人\藏锋微信机器人\obj\Debug\藏锋微信机器人.exe
+E:\project\weixinRobot\藏锋微信机器人\藏锋微信机器人\obj\Debug\藏锋微信机器人.pdb
+E:\project\weixinRobot\藏锋微信机器人\藏锋微信机器人\bin\Debug\藏锋微信机器人.exe.config
+E:\project\weixinRobot\藏锋微信机器人\藏锋微信机器人\bin\Debug\Newtonsoft.Json.dll
+E:\project\weixinRobot\藏锋微信机器人\藏锋微信机器人\bin\Debug\MetroFramework.Design.dll
+E:\project\weixinRobot\藏锋微信机器人\藏锋微信机器人\bin\Debug\MetroFramework.dll
+E:\project\weixinRobot\藏锋微信机器人\藏锋微信机器人\bin\Debug\MetroFramework.Fonts.dll
+E:\project\weixinRobot\藏锋微信机器人\藏锋微信机器人\obj\Debug\藏锋微信机器人.Main.resources
+E:\project\weixinRobot\藏锋微信机器人\藏锋微信机器人\obj\Debug\藏锋微信机器人.Login.resources
