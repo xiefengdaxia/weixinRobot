@@ -1,6 +1,6 @@
  ## 藏锋机器人
  ### 截图
- ####获取联系人
+ #### 获取联系人
  ![截图](https://raw.githubusercontent.com/xiefengdaxia/weixinRobot/master/%E6%88%AA%E5%9B%BE/contract.jpg?raw=true)
  
  #### 登录
