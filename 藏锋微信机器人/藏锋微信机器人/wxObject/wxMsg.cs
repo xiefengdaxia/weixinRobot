@@ -23,6 +23,14 @@ namespace 藏锋微信机器人
             get;
             set;
         }
+
+		/// <summary>
+		/// 消息发送方名称
+		/// </summary>
+		public string FromName
+		{
+			get;set;
+		}
         /// <summary>
         /// 消息接收方
         /// </summary>

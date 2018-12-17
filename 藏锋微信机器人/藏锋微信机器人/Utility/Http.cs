@@ -42,13 +42,54 @@ namespace 藏锋微信机器人
             }
             return strResult;
         }
-        /// <summary>
-        /// Session带Cookie的HTTPPOIST
-        /// </summary>
-        /// <param name="postUrl"></param>
-        /// <param name="strPost"></param>
-        /// <returns></returns>
-        public static string WebPost(string postUrl, string strPost)
+
+		/// <summary>
+		/// 向服务器发送get请求  返回服务器回复数据
+		/// </summary>
+		/// <param name="url"></param>
+		/// <returns></returns>
+		public static byte[] Get(string url)
+		{
+			try
+			{
+				HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+				request.Method = "get";
+
+				if (CookiesContainer == null)
+				{
+					CookiesContainer = new CookieContainer();
+				}
+
+				request.CookieContainer = CookiesContainer;  //启用cookie
+
+				HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+				Stream response_stream = response.GetResponseStream();
+
+				int count = (int)response.ContentLength;
+				int offset = 0;
+				byte[] buf = new byte[count];
+				while (count > 0)  //读取返回数据
+				{
+					int n = response_stream.Read(buf, offset, count);
+					if (n == 0) break;
+					count -= n;
+					offset += n;
+				}
+				return buf;
+			}
+			catch
+			{
+				return null;
+			}
+		}
+
+		/// <summary>
+		/// Session带Cookie的HTTPPOIST
+		/// </summary>
+		/// <param name="postUrl"></param>
+		/// <param name="strPost"></param>
+		/// <returns></returns>
+		public static string WebPost(string postUrl, string strPost)
         {
             string strResult = "";
             try

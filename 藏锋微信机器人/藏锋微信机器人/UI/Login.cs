@@ -17,7 +17,7 @@ namespace 藏锋微信机器人
         public Login()
         {
             wxRobot = new robot();
-            timer = new System.Timers.Timer(1000);
+            timer = new System.Timers.Timer(5000);
             timer.Elapsed += timer_Elapsed;
             InitializeComponent();
         }
@@ -45,10 +45,18 @@ namespace 藏锋微信机器人
             //耗时操作在后台进程进行
             Thread worker = new Thread(delegate()
             {
-                var loginStatusStr = wxRobot.wait4login();
+				try
+				{
+					var loginStatusStr = wxRobot.wait4login();
+
+					
+					ShowStatus(loginStatusStr);
+				}
+				catch(Exception ex)
+				{
+					wxRobot.appendText(ex.Message + "\n\r" + ex.StackTrace);
+				}
                 
-                
-                ShowStatus(loginStatusStr);
             });
             worker.IsBackground = true;
             worker.Start();

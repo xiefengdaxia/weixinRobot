@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CSHelper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>H:\资料备份\U盘\谢峰研发\ETS工具集CSharpBigPlugin\CSharpBigPlugin\CSHelper\bin\Debug\CSHelper.dll</HintPath>
+    </Reference>
     <Reference Include="Gma.QrCodeNet.Encoding.Net35">
       <HintPath>D:\搜狗高速下载\代码学习\wxBot.NET-master\wxBot.NET-master\wxBot.NET\bin\Debug\Gma.QrCodeNet.Encoding.Net35.dll</HintPath>
     </Reference>
@@ -59,6 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\bot.cs" />
     <Compile Include="Core\robot.cs" />
     <Compile Include="UI\Login.cs">
       <SubType>Form</SubType>

@@ -2,16 +2,33 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace 藏锋微信机器人
 {
     public class robot
     {
+		public bot bot;
+		public delegate void MsgHandle(string msg);
+		public event MsgHandle MsgEvent;
+		public void appendText(string msg)
+		{
+			//判断是否绑定了注册事件的方法
+			if (MsgEvent != null)
+			{
+				//事件触发
+				MsgEvent(msg);
+			}
+		}
+
+		public RichTextBox rTextbox;
         private string UNKONWN = "unkonwn";
         public string SUCCESS = "200";
         private string SCANED = "201";
@@ -36,9 +53,9 @@ namespace 藏锋微信机器人
 
         public wxUser _me;    // 当前登录微信用户
         public List<wxUser> contact_list = new List<wxUser>();   //联系人
-        public List<Object> public_list = new List<object>();   //公共号
-        public List<Object> special_list = new List<object>();   //特殊号
-        public List<Object> group_list = new List<object>();   //群聊
+        public List<wxUser> public_list = new List<wxUser>();   //公共号
+        public List<wxUser> special_list = new List<wxUser>();   //特殊号
+        public List<wxUser> group_list = new List<wxUser>();   //群聊
         private List<Object> encry_chat_room_id_list = new List<object>();   //存储群聊的EncryChatRoomId，获取群内成员头像时需要用到
 
         #region 登录相关
@@ -108,7 +125,7 @@ namespace 藏锋微信机器人
                 }
                 if (status_code == SCANED) //已扫描 未登录
                 {
-                    Console.WriteLine("[INFO] Please confirm to login .");
+                    appendText("[INFO] Please confirm to login .");
                     tip = "0";
                     return "请点击确认登录";
                 }
@@ -127,7 +144,7 @@ namespace 藏锋微信机器人
                 }
                 else if (status_code == TIMEOUT)  //超时
                 {
-                    Console.WriteLine("[ERROR] WeChat login exception return_code=" + status_code + ". retry in" + try_later_secs + "secs later...");
+                    appendText("[ERROR] WeChat login exception return_code=" + status_code + ". retry in " + try_later_secs + " secs later...");
                     tip = "1";
                     retry_time -= 1;
                     return "超时";
@@ -148,7 +165,7 @@ namespace 藏锋微信机器人
         {
             if (redirect_uri.Length < 4)
             {
-                Console.WriteLine("[ERROR] Login failed due to network problem, please try again.");
+                appendText("[ERROR] Login failed due to network problem, please try again.");
                 return false;
             }
             string SessionInfo = Http.WebGet(redirect_uri);
@@ -397,7 +414,8 @@ namespace 藏锋微信机器人
                             if (r != null)
                             {
                                 get_contact();
-                                Console.WriteLine("[INFO] Contacts Updated .");
+                                appendText("[INFO] Contacts Updated .");
+                                
                             }
                         }
                         else
@@ -430,8 +448,8 @@ namespace 藏锋微信机器人
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("[ERROR] Except in proc_msg");
-                    Console.WriteLine(ex.ToString());
+                    appendText("[ERROR] Except in proc_msg");
+                    appendText(ex.ToString());
                 }
                 check_time = (float)(DateTime.Now.ToUniversalTime() - new System.DateTime(1970, 1, 1)).TotalMilliseconds - check_time;
                 if (check_time < 0.8)
@@ -534,7 +552,7 @@ namespace 藏锋微信机器人
             }
             if (mtype == 3)
             {
-                ;
+
             }
             //elif mtype == 3:
             //    msg_content['type'] = 3
@@ -668,27 +686,33 @@ namespace 藏锋微信机器人
                 if (from == _me.UserName)   // Self
                 {
                     msg.Type = 1;
+					
                 }
                 else if (to == "filehelper")   // File Helper
                 {
                     msg.Type = 2;
-                }
+					
+				}
                 else if (from.IndexOf("@@") != -1) //群聊
                 {
                     msg.Type = 3;
-                }
+					
+				}
                 else if (is_contact(from))  // Contact
                 {
                     msg.Type = 4;
-                }
+
+				}
                 else if (is_public(from))  // Public
                 {
                     msg.Type = 5;
-                }
+					
+				}
                 else if (is_special(from)) //special
                 {
                     msg.Type = 6;
-                }
+					
+				}
                 else
                     msg.Type = 99;
 
@@ -720,22 +744,152 @@ namespace 藏锋微信机器人
                 handle_msg_all(msg);
             }
         }
-        public  void handle_msg_all(wxMsg msg)
+        public void handle_msg_all(wxMsg msg)
         {
-           
-            //if (msg.Type == 1 && msg.ContentType == 0)
-            //{
-            //    auto_switch(msg);
-            //}
-            if (msg.Type == 4)
-            {
-                send_msg_by_uid("C#收到了消息:" + msg.Content + DateTime.Now, msg.From);
-            }
-            //if (msg.Type == 4 && msg.ContentType == 0)
-            //{
-            //    send_msg_by_uid("C#收到了消息:"+msg.Content+DateTime.Now, msg.From);
-            //}
-        }
+			//msg_type_id:
+			//    0 -> Init
+			//    1 -> Self
+			//    2 -> FileHelper
+			//    3 -> Group
+			//    4 -> Contact
+			//    5 -> Public
+			//    6 -> Special
+			//    99 -> Unknown
+			//:param r: 原始微信消息
+
+			
+			switch (msg.Type)
+			{
+				case 0: msg.FromName = "初始化";break;
+				case 1: msg.FromName = "自己"; break;
+				case 2: msg.FromName = "文件传输"; break;
+				case 3: { msg.FromName = "群聊"; msg.FromName += GetFormName(group_list, msg.From); }; break;
+				case 4: { msg.FromName = "联系人";msg.FromName += GetFormName(contact_list, msg.From); }; break;
+				case 5: { msg.FromName = "公众号"; msg.FromName += GetFormName(public_list, msg.From); }; break;
+				case 6: { msg.FromName = "特殊"; msg.FromName += GetFormName(special_list, msg.From); } break;
+				case 99: msg.FromName = "Unknown"; break;
+
+			}
+
+			if (msg.ContentType==3)
+			{
+				var imgUrl= string.Format("{0}/webwxgetmsgimg?MsgID={1}&skey={2}", base_uri, msg.MsgID, skey);
+				msg.Content= string.Format("【图片】{0}", imgUrl);
+
+				var bytedata=Http.Get(imgUrl);
+				
+				//var imgae=Image.FromStream(new MemoryStream(bytedata));
+				//Bitmap bitmap = new Bitmap(imgae);
+
+				string path = Application.StartupPath + "\\image\\img_" + msg.MsgID + ".jpg";
+				//创建一个文件流
+				FileStream fs = new FileStream(path, FileMode.Create);
+
+				//将byte数组写入文件中
+				fs.Write(bytedata, 0, bytedata.Length);
+				//所有流类型都要关闭流，否则会出现内存泄露问题
+				fs.Close();
+
+				//Clipboard.SetDataObject(imgae);
+
+				
+			}
+
+
+			var msgJson = JsonConvert.SerializeObject(msg);
+
+
+			appendText(msgJson);
+
+
+			if (bot != null&& msg.Type==4)
+			{
+				try
+				{
+					var replyMsg = "";
+					if (msg.Content == "功能")
+					{
+						StringBuilder sb = new StringBuilder();
+						sb.Append("------------------------------------------------");
+						sb.Append("1、生活百科：对生活小常识、生活小百科的数据查询");
+						sb.Append("示例：水浒的简介");
+						sb.Append("------------------------------------------------");
+						sb.Append("2、图片搜索：搜索互联网上的图片，海量图片精准匹配");
+						sb.Append("示例:美女图片");
+						sb.Append("------------------------------------------------");
+						sb.Append("3、数字计算：可进行乘方、开方、指数、对数、、统计等方面的运算");
+						sb.Append("“示例:2乘2”“2开根号”“8的阶乘”");
+						sb.Append("------------------------------------------------");
+						sb.Append("4、问答百科：提供对百度百科现有的知识信息的查询，1300w百科回复");
+						sb.Append("示例:”周杰伦是谁“ ”天空为什么是蓝的“");
+						sb.Append("------------------------------------------------");
+						sb.Append("5、中英互译：一项在线翻译服务，提供中文和英语的互译服务");
+						sb.Append("示例:“苹果用英语怎么说”“苹果英语怎么说”“英语说苹果”");
+						sb.Append("------------------------------------------------");
+						sb.Append("6、聊天对话：模拟人与人之间的对话");
+						sb.Append("示例:“你好 ” “我生病了有点难受”");
+						sb.Append("------------------------------------------------");
+						replyMsg = sb.ToString();
+					}
+					else
+					{
+						if(!msg.Content.Contains("消息已发出，但被对方拒收了。"))
+						//截取前面30位，不能太长
+						replyMsg = bot.tuling_auto_reply(msg.From.Replace("@", "").Substring(0, 30), msg.Content);
+					}
+					
+					if (!string.IsNullOrEmpty(replyMsg))
+					{
+						send_msg_by_uid(replyMsg, msg.From);
+						appendText($"发送消息给：【{GetFormName(contact_list, msg.From)}】 内容：{replyMsg}");
+					}
+				}
+				catch(Exception ex)
+				{
+					appendText(ex.Message + "\n\r" + ex.StackTrace);
+				}
+				
+			}
+			
+			//appendText("C#收到了消息:" + msg.Content);
+			//if (msg.Type == 1 && msg.ContentType == 0)
+			//{
+			//    auto_switch(msg);
+			//}
+			//        if (msg.Type == 4 && msg.ContentType == 3)
+			//        {
+			//            send_msg_by_uid("C#收到了消息:" + msg.Content + DateTime.Now, msg.From);
+			//            try
+			//            {
+			//               var imgUrl = string.Format("{0}/webwxgetmsgimg?MsgID={1}&skey={2}", base_uri, msg.MsgID, skey);
+			//               appendText("接到一张图片:" + imgUrl);
+			//var result = Http.WebGet(imgUrl);
+			//	appendText(result);
+			//            }
+			//            catch (Exception ex)
+			//            {
+			//	appendText(ex.Message);
+			//}
+			//        }
+			//if (msg.Type == 4 && msg.ContentType == 0)
+			//{
+			//    send_msg_by_uid("C#收到了消息:"+msg.Content+DateTime.Now, msg.From);
+			//}
+		}
+
+		public String GetFormName(List<wxUser> userList,string id)
+		{
+			var name = ":未知";
+
+			for (int i = 0; i < userList.Count; i++)
+			{
+				if (id == userList[i].UserName)
+				{
+					name = string.IsNullOrWhiteSpace(userList[i].RemarkName) ? userList[i].NickName : userList[i].RemarkName;
+				}
+			}
+			return name;
+		}
         public class csMSG
         {
             public int Type { get; set; }
@@ -817,6 +971,56 @@ namespace 藏锋微信机器人
 
         }
         #endregion
+
+		//public static void appendText(string msg,RichTextBox richTextBox)
+		//{
+		//	try
+		//	{
+		//		msg = DateTime.Now.ToString("yyyy-MM-dd HH:mm:sss") + "\n" + msg;
+		//		if (richTextBox == null)
+		//		{
+		//			Console.WriteLine(msg);
+		//		}
+		//		else
+		//		{
+		//			//无参数,但是返回值为bool类型
+		//			richTextBox.Invoke(new Func<bool>(delegate ()
+		//			{
+		//				richTextBox.AppendText(msg);
+		//				return true; //返回值
+		//			}));
+		//		}
+		//	}
+		//	catch (Exception ex)
+		//	{
+
+		//	}
+		//}
+        //private void appendText(string msg)
+        //{
+
+        //    //try
+        //    //{
+        //    //    msg = DateTime.Now.ToString("yyyy-MM-dd HH:mm:sss") + "\n" + msg;
+        //    //    if (rTextbox == null)
+        //    //    {
+        //    //        Console.WriteLine(msg);
+        //    //    }
+        //    //    else
+        //    //    {
+        //    //        //无参数,但是返回值为bool类型
+        //    //        rTextbox.Invoke(new Func<bool>(delegate()
+        //    //        {
+        //    //            rTextbox.AppendText(msg);
+        //    //            return true; //返回值
+        //    //        }));
+        //    //    }
+        //    //}
+        //    //catch (Exception ex)
+        //    //{
+
+        //    //}
+        //}
         /// <summary>
         /// 判断用户是否在在联系人中
         /// </summary>
@@ -885,4 +1089,3 @@ namespace 藏锋微信机器人
         }
     }
 }
-       

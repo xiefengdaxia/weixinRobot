@@ -62,5 +62,6 @@ namespace 藏锋微信机器人
             render.Draw(g, qrCode.Matrix, padding);
             return map;
         }
+
     }
 }
