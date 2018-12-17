@@ -39,6 +39,7 @@ namespace 藏锋微信机器人
 		/// </summary>
 		private bool robot_switch=true;
 
+		public string bot_name = "藏锋";
 		/// <summary>
 		/// 图灵接口地址
 		/// </summary>
@@ -48,7 +49,10 @@ namespace 藏锋微信机器人
 		{
 			var path = System.Windows.Forms.Application.StartupPath + "\\xf.ini";
 			robot_switch = CSHelper.ReadINI("setup", "robot_switch",  path) == "1";
+			
 			tuling_key = CSHelper.ReadINI("setup", "tuling_key",  path);
+
+			bot_name = CSHelper.ReadINI("setup", "bot_name", path);
 		}
 
 		/// <summary>

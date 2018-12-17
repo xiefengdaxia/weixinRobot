@@ -29,7 +29,7 @@ namespace 藏锋微信机器人
 			
 			mcbTulingRobot.Checked = CSHelper.ReadINI("setup","robot_switch", path) == "1";
 			txtApiKey.Text = CSHelper.ReadINI("setup", "tuling_key",  path);
-
+			txtBotName.Text = CSHelper.ReadINI("setup", "bot_name", path);
 			lbMeInfo.Text = wxrb._me.NickName + "\n\r" + wxrb._me.UserName;
             
             //System.Net.WebRequest webreq = System.Net.WebRequest.Create( wxrb._me.HeadImgUrl);
@@ -126,6 +126,7 @@ namespace 藏锋微信机器人
 			{
 				CSHelper.WriteINI("robot_switch",mcbTulingRobot.Checked?"1":"0" , path, "setup");
 				CSHelper.WriteINI("tuling_key", txtApiKey.Text.Trim(), path,"setup");
+				CSHelper.WriteINI("bot_name", txtBotName.Text.Trim(), path, "setup");
 				MessageBox.Show("保存成功！");
 			}
 			catch(Exception ex)

@@ -37,15 +37,17 @@
 			this.richTextBox1 = new System.Windows.Forms.RichTextBox();
 			this.metroTabPage2 = new MetroFramework.Controls.MetroTabPage();
 			this.metroTabPage4 = new MetroFramework.Controls.MetroTabPage();
+			this.txtApiKey = new MetroFramework.Controls.MetroTextBox();
+			this.btnSave = new MetroFramework.Controls.MetroButton();
+			this.lblApiKey = new MetroFramework.Controls.MetroLabel();
 			this.mcbTulingRobot = new MetroFramework.Controls.MetroCheckBox();
 			this.metroTabPage5 = new MetroFramework.Controls.MetroTabPage();
 			this.pbMeImg = new System.Windows.Forms.PictureBox();
 			this.lbMeInfo = new MetroFramework.Controls.MetroLabel();
 			this.metroPanel1 = new MetroFramework.Controls.MetroPanel();
 			this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-			this.lblApiKey = new MetroFramework.Controls.MetroLabel();
-			this.btnSave = new MetroFramework.Controls.MetroButton();
-			this.txtApiKey = new MetroFramework.Controls.MetroTextBox();
+			this.txtBotName = new MetroFramework.Controls.MetroTextBox();
+			this.lblBotName = new MetroFramework.Controls.MetroLabel();
 			this.metroTabControl1.SuspendLayout();
 			this.metroTabPage1.SuspendLayout();
 			this.metroTabPage3.SuspendLayout();
@@ -164,8 +166,10 @@
 			// metroTabPage4
 			// 
 			this.metroTabPage4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.metroTabPage4.Controls.Add(this.txtBotName);
 			this.metroTabPage4.Controls.Add(this.txtApiKey);
 			this.metroTabPage4.Controls.Add(this.btnSave);
+			this.metroTabPage4.Controls.Add(this.lblBotName);
 			this.metroTabPage4.Controls.Add(this.lblApiKey);
 			this.metroTabPage4.Controls.Add(this.mcbTulingRobot);
 			this.metroTabPage4.HorizontalScrollbarBarColor = true;
@@ -179,6 +183,55 @@
 			this.metroTabPage4.VerticalScrollbarBarColor = true;
 			this.metroTabPage4.VerticalScrollbarHighlightOnWheel = false;
 			this.metroTabPage4.VerticalScrollbarSize = 10;
+			// 
+			// txtApiKey
+			// 
+			// 
+			// 
+			// 
+			this.txtApiKey.CustomButton.Image = null;
+			this.txtApiKey.CustomButton.Location = new System.Drawing.Point(178, 1);
+			this.txtApiKey.CustomButton.Name = "";
+			this.txtApiKey.CustomButton.Size = new System.Drawing.Size(21, 21);
+			this.txtApiKey.CustomButton.Style = MetroFramework.MetroColorStyle.Blue;
+			this.txtApiKey.CustomButton.TabIndex = 1;
+			this.txtApiKey.CustomButton.Theme = MetroFramework.MetroThemeStyle.Light;
+			this.txtApiKey.CustomButton.UseSelectable = true;
+			this.txtApiKey.CustomButton.Visible = false;
+			this.txtApiKey.Lines = new string[0];
+			this.txtApiKey.Location = new System.Drawing.Point(110, 92);
+			this.txtApiKey.MaxLength = 32767;
+			this.txtApiKey.Name = "txtApiKey";
+			this.txtApiKey.PasswordChar = '\0';
+			this.txtApiKey.ScrollBars = System.Windows.Forms.ScrollBars.None;
+			this.txtApiKey.SelectedText = "";
+			this.txtApiKey.SelectionLength = 0;
+			this.txtApiKey.SelectionStart = 0;
+			this.txtApiKey.ShortcutsEnabled = true;
+			this.txtApiKey.Size = new System.Drawing.Size(200, 23);
+			this.txtApiKey.TabIndex = 5;
+			this.txtApiKey.UseSelectable = true;
+			this.txtApiKey.WaterMarkColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(109)))), ((int)(((byte)(109)))));
+			this.txtApiKey.WaterMarkFont = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Pixel);
+			// 
+			// btnSave
+			// 
+			this.btnSave.Location = new System.Drawing.Point(339, 139);
+			this.btnSave.Name = "btnSave";
+			this.btnSave.Size = new System.Drawing.Size(88, 24);
+			this.btnSave.TabIndex = 4;
+			this.btnSave.Text = "保存";
+			this.btnSave.UseSelectable = true;
+			this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+			// 
+			// lblApiKey
+			// 
+			this.lblApiKey.AutoSize = true;
+			this.lblApiKey.Location = new System.Drawing.Point(41, 92);
+			this.lblApiKey.Name = "lblApiKey";
+			this.lblApiKey.Size = new System.Drawing.Size(51, 19);
+			this.lblApiKey.TabIndex = 3;
+			this.lblApiKey.Text = "Apikey:";
 			// 
 			// mcbTulingRobot
 			// 
@@ -243,54 +296,44 @@
 			// 
 			this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
 			// 
-			// lblApiKey
-			// 
-			this.lblApiKey.AutoSize = true;
-			this.lblApiKey.Location = new System.Drawing.Point(41, 92);
-			this.lblApiKey.Name = "lblApiKey";
-			this.lblApiKey.Size = new System.Drawing.Size(51, 19);
-			this.lblApiKey.TabIndex = 3;
-			this.lblApiKey.Text = "Apikey:";
-			// 
-			// btnSave
-			// 
-			this.btnSave.Location = new System.Drawing.Point(342, 92);
-			this.btnSave.Name = "btnSave";
-			this.btnSave.Size = new System.Drawing.Size(88, 24);
-			this.btnSave.TabIndex = 4;
-			this.btnSave.Text = "保存";
-			this.btnSave.UseSelectable = true;
-			this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
-			// 
-			// txtApiKey
+			// txtBotName
 			// 
 			// 
 			// 
 			// 
-			this.txtApiKey.CustomButton.Image = null;
-			this.txtApiKey.CustomButton.Location = new System.Drawing.Point(178, 1);
-			this.txtApiKey.CustomButton.Name = "";
-			this.txtApiKey.CustomButton.Size = new System.Drawing.Size(21, 21);
-			this.txtApiKey.CustomButton.Style = MetroFramework.MetroColorStyle.Blue;
-			this.txtApiKey.CustomButton.TabIndex = 1;
-			this.txtApiKey.CustomButton.Theme = MetroFramework.MetroThemeStyle.Light;
-			this.txtApiKey.CustomButton.UseSelectable = true;
-			this.txtApiKey.CustomButton.Visible = false;
-			this.txtApiKey.Lines = new string[0];
-			this.txtApiKey.Location = new System.Drawing.Point(110, 92);
-			this.txtApiKey.MaxLength = 32767;
-			this.txtApiKey.Name = "txtApiKey";
-			this.txtApiKey.PasswordChar = '\0';
-			this.txtApiKey.ScrollBars = System.Windows.Forms.ScrollBars.None;
-			this.txtApiKey.SelectedText = "";
-			this.txtApiKey.SelectionLength = 0;
-			this.txtApiKey.SelectionStart = 0;
-			this.txtApiKey.ShortcutsEnabled = true;
-			this.txtApiKey.Size = new System.Drawing.Size(200, 23);
-			this.txtApiKey.TabIndex = 5;
-			this.txtApiKey.UseSelectable = true;
-			this.txtApiKey.WaterMarkColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(109)))), ((int)(((byte)(109)))));
-			this.txtApiKey.WaterMarkFont = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Pixel);
+			this.txtBotName.CustomButton.Image = null;
+			this.txtBotName.CustomButton.Location = new System.Drawing.Point(178, 1);
+			this.txtBotName.CustomButton.Name = "";
+			this.txtBotName.CustomButton.Size = new System.Drawing.Size(21, 21);
+			this.txtBotName.CustomButton.Style = MetroFramework.MetroColorStyle.Blue;
+			this.txtBotName.CustomButton.TabIndex = 1;
+			this.txtBotName.CustomButton.Theme = MetroFramework.MetroThemeStyle.Light;
+			this.txtBotName.CustomButton.UseSelectable = true;
+			this.txtBotName.CustomButton.Visible = false;
+			this.txtBotName.Lines = new string[0];
+			this.txtBotName.Location = new System.Drawing.Point(110, 139);
+			this.txtBotName.MaxLength = 32767;
+			this.txtBotName.Name = "txtBotName";
+			this.txtBotName.PasswordChar = '\0';
+			this.txtBotName.ScrollBars = System.Windows.Forms.ScrollBars.None;
+			this.txtBotName.SelectedText = "";
+			this.txtBotName.SelectionLength = 0;
+			this.txtBotName.SelectionStart = 0;
+			this.txtBotName.ShortcutsEnabled = true;
+			this.txtBotName.Size = new System.Drawing.Size(200, 23);
+			this.txtBotName.TabIndex = 5;
+			this.txtBotName.UseSelectable = true;
+			this.txtBotName.WaterMarkColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(109)))), ((int)(((byte)(109)))));
+			this.txtBotName.WaterMarkFont = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Pixel);
+			// 
+			// lblBotName
+			// 
+			this.lblBotName.AutoSize = true;
+			this.lblBotName.Location = new System.Drawing.Point(41, 139);
+			this.lblBotName.Name = "lblBotName";
+			this.lblBotName.Size = new System.Drawing.Size(68, 19);
+			this.lblBotName.TabIndex = 3;
+			this.lblBotName.Text = "机器人名:";
 			// 
 			// Main
 			// 
@@ -335,5 +378,7 @@
 		private MetroFramework.Controls.MetroTextBox txtApiKey;
 		private MetroFramework.Controls.MetroButton btnSave;
 		private MetroFramework.Controls.MetroLabel lblApiKey;
+		private MetroFramework.Controls.MetroTextBox txtBotName;
+		private MetroFramework.Controls.MetroLabel lblBotName;
 	}
 }

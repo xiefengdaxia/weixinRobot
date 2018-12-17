@@ -802,10 +802,23 @@ namespace 藏锋微信机器人
 			appendText(msgJson);
 
 
-			if (bot != null&& msg.Type==4)
+			if (bot != null&& (msg.Type==4 || msg.Type == 3))
 			{
 				try
 				{
+					var callBot = msg.Content.Contains("@" + bot.bot_name);
+					if (msg.Type == 3  && callBot)
+					{
+						var index = msg.Content.IndexOf("<br/>");
+						var uid = msg.Content.Substring(0, index);
+						var groupMsg = msg.Content.Substring(index, msg.Content.Length - index).Replace("<br/>", "");
+						msg.Content = groupMsg.Replace("@" + bot.bot_name, "").Trim();
+					}
+					else if (msg.Type == 3 && !callBot)
+					{
+						return;
+					}
+
 					var replyMsg = "";
 					if (msg.Content == "功能")
 					{
@@ -834,8 +847,11 @@ namespace 藏锋微信机器人
 					else
 					{
 						if(!msg.Content.Contains("消息已发出，但被对方拒收了。"))
-						//截取前面30位，不能太长
-						replyMsg = bot.tuling_auto_reply(msg.From.Replace("@", "").Substring(0, 30), msg.Content);
+						{
+							//截取前面30位，不能太长
+							replyMsg = bot.tuling_auto_reply(msg.From.Replace("@", "").Substring(0, 30), msg.Content);
+						}
+						
 					}
 					
 					if (!string.IsNullOrEmpty(replyMsg))
