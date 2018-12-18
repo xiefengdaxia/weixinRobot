@@ -29,7 +29,8 @@ namespace 藏锋微信机器人
                 {
                     CookiesContainer = new CookieContainer();
                 }
-                request.CookieContainer = CookiesContainer;  //启用cookie
+				request.Proxy = null;
+				request.CookieContainer = CookiesContainer;  //启用cookie
                 request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36";
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
                 Stream stream = response.GetResponseStream();
@@ -39,6 +40,7 @@ namespace 藏锋微信机器人
             }
             catch (Exception ex)
             {
+				throw new Exception("网络请求错误:\n\r" + ex.Message);
             }
             return strResult;
         }
@@ -48,13 +50,20 @@ namespace 藏锋微信机器人
 		/// </summary>
 		/// <param name="url"></param>
 		/// <returns></returns>
-		public static byte[] Get(string url)
+		public static byte[] Get(string url, bool video=false)
 		{
 			try
 			{
 				HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
 				request.Method = "get";
-
+				if (video)
+				{
+					//request.Headers = webHeaderCollection;
+					//request.Headers.Add(HttpRequestHeader.Range, "bytes=0-");
+					//request.AddRange(0, 1048575);
+					request.AddRange(0);
+				}
+				
 				if (CookiesContainer == null)
 				{
 					CookiesContainer = new CookieContainer();
@@ -102,7 +111,8 @@ namespace 藏锋微信机器人
                 request.Method = "POST";
                 request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36";
                 request.ContentType = "application/x-www-form-urlencoded";
-                if (CookiesContainer == null)
+				request.Proxy = null;
+				if (CookiesContainer == null)
                 {
                     CookiesContainer = new CookieContainer();
                 }
@@ -122,7 +132,8 @@ namespace 藏锋微信机器人
             }
             catch (Exception ex)
             {
-            }
+				throw new Exception("网络请求错误:\n\r" + ex.Message);
+			}
             return strResult;
         }
         /// <summary>
@@ -144,6 +155,7 @@ namespace 藏锋微信机器人
                 request.Method = "POST";
                 request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36";
                 request.ContentType = "application/json; charset=UTF-8";
+				request.Proxy = null;
                 if (CookiesContainer == null)
                 {
                     CookiesContainer = new CookieContainer();
@@ -164,7 +176,8 @@ namespace 藏锋微信机器人
             }
             catch (Exception ex)
             {
-            }
+				throw new Exception("网络请求错误:\n\r" + ex.Message);
+			}
             return strResult;
         }
     }

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -773,28 +774,20 @@ namespace 藏锋微信机器人
 
 			if (msg.ContentType==3)
 			{
-				var imgUrl= string.Format("{0}/webwxgetmsgimg?MsgID={1}&skey={2}", base_uri, msg.MsgID, skey);
-				msg.Content= string.Format("【图片】{0}", imgUrl);
 
-				var bytedata=Http.Get(imgUrl);
-				
-				//var imgae=Image.FromStream(new MemoryStream(bytedata));
-				//Bitmap bitmap = new Bitmap(imgae);
+				get_media_msg(ref msg, "webwxgetmsgimg", "图片", "image", "jpg");
 
-				string path = Application.StartupPath + "\\image\\img_" + msg.MsgID + ".jpg";
-				//创建一个文件流
-				FileStream fs = new FileStream(path, FileMode.Create);
-
-				//将byte数组写入文件中
-				fs.Write(bytedata, 0, bytedata.Length);
-				//所有流类型都要关闭流，否则会出现内存泄露问题
-				fs.Close();
-
-				//Clipboard.SetDataObject(imgae);
-
-				
 			}
 
+			if (msg.ContentType == 34)
+			{
+				get_media_msg(ref msg, "webwxgetvoice", "语音", "voice", "mp3");
+			}
+
+			if (msg.ContentType == 43)
+			{
+				get_media_msg(ref msg, "webwxgetvideo", "视频", "video", "mp4");
+			}
 
 			var msgJson = JsonConvert.SerializeObject(msg);
 
@@ -815,6 +808,10 @@ namespace 藏锋微信机器人
 						msg.Content = groupMsg.Replace("@" + bot.bot_name, "").Trim();
 					}
 					else if (msg.Type == 3 && !callBot)
+					{
+						return;
+					}
+					else if(msg.ContentType == 34|| msg.ContentType == 43)
 					{
 						return;
 					}
@@ -846,7 +843,16 @@ namespace 藏锋微信机器人
 					}
 					else
 					{
-						if(!msg.Content.Contains("消息已发出，但被对方拒收了。"))
+						if (msg.Content.Contains("你还不是他（她）朋友"))
+						{
+
+							return;
+						}
+						else if (msg.Content.Contains("消息已发出，但被对方拒收了。"))
+						{
+							return;
+						}
+						else
 						{
 							//截取前面30位，不能太长
 							replyMsg = bot.tuling_auto_reply(msg.From.Replace("@", "").Substring(0, 30), msg.Content);
@@ -893,6 +899,71 @@ namespace 藏锋微信机器人
 			//}
 		}
 
+		/// <summary>
+		/// 接收并下载图片文件
+		/// </summary>
+		/// <param name="msg"></param>
+		private void get_msg_img(ref wxMsg msg)
+		{
+
+			var imgUrl = string.Format("{0}/webwxgetmsgimg?MsgID={1}&skey={2}", base_uri, msg.MsgID, skey);
+			msg.Content = string.Format("【图片】{0}", imgUrl);
+
+			var bytedata = Http.Get(imgUrl);
+
+			//var imgae=Image.FromStream(new MemoryStream(bytedata));
+			//Bitmap bitmap = new Bitmap(imgae);
+
+			string path = Application.StartupPath + "\\image\\img_" + msg.MsgID + ".jpg";
+			//创建一个文件流
+			FileStream fs = new FileStream(path, FileMode.Create);
+
+			//将byte数组写入文件中
+			fs.Write(bytedata, 0, bytedata.Length);
+			//所有流类型都要关闭流，否则会出现内存泄露问题
+			fs.Close();
+		}
+
+		/// <summary>
+		/// 接收并且下载语音文件
+		/// </summary>
+		/// <param name="msg"></param>
+		private void get_voice(ref wxMsg msg)
+		{
+			//var url = string.Format("{0}/webwxgetvoice?MsgID={1}&skey={2}", base_uri, msg.MsgID, skey);
+			//msg.Content = string.Format("【语音】{0}", url);
+
+			//var bytedata = Http.Get(url);
+
+			//string path = Application.StartupPath + "\\voice\\voice_" + msg.MsgID + ".mp3";
+			////创建一个文件流
+			//FileStream fs = new FileStream(path, FileMode.Create);
+
+			////将byte数组写入文件中
+			//fs.Write(bytedata, 0, bytedata.Length);
+			////所有流类型都要关闭流，否则会出现内存泄露问题
+			//fs.Close();
+			get_media_msg(ref msg, "webwxgetvoice", "语音", "voice", "mp3");
+		}
+
+		private void get_media_msg(ref wxMsg msg,string baseUrl,string type,string folderName,string fileSuffix)
+		{
+			var url = string.Format("{0}/{3}?MsgID={1}&skey={2}", base_uri, msg.MsgID, skey,baseUrl);
+			msg.Content = string.Format("【{1}】{0}", url, type);
+
+			byte[] bytedata;
+			if (type == "视频") bytedata = Http.Get(url, true);
+			else bytedata =Http.Get(url);
+
+			string path = $"{Application.StartupPath}\\{folderName}\\{folderName}_{msg.MsgID}.{fileSuffix}";
+			//创建一个文件流
+			FileStream fs = new FileStream(path, FileMode.Create);
+
+			//将byte数组写入文件中
+			fs.Write(bytedata, 0, bytedata.Length);
+			//所有流类型都要关闭流，否则会出现内存泄露问题
+			fs.Close();
+		}
 		public String GetFormName(List<wxUser> userList,string id)
 		{
 			var name = ":未知";
@@ -906,143 +977,52 @@ namespace 藏锋微信机器人
 			}
 			return name;
 		}
-        public class csMSG
-        {
-            public int Type { get; set; }
-            public string Content { get; set; }
-            public string FromUserName { get; set; }
-            public string ToUserName { get; set; }
-            public string LocalID { get; set; }
-            public string ClientMsgId { get; set; }
-        }
 
-        public class csBaseRequest
-        {
-            public string Uin;
-            public string Sid;
-            public string Skey;
-            public string DeviceID;
-        }
+		public bool send_msg_by_uid(string word, string dst = "filehelper")
+		{
+			//dst = get_user_id(dst);
+			string url = base_uri + "/webwxsendmsg?pass_ticket=" + pass_ticket;
 
-        public class message
-        {
-            public csMSG Msg { get; set; }
-            public csBaseRequest BaseRequest { get; set; }
-        }
-        public bool send_msg_by_uid(string word, string dst = "filehelper")
-        {
-            //dst = get_user_id(dst);
-            string url = base_uri + "/webwxsendmsg?pass_ticket=" + pass_ticket;
+			message _message = new message();
+			csMSG MSG = new csMSG();
+			MSG.Type = 1;
+			MSG.FromUserName = _me.UserName;
+			MSG.ToUserName = dst;
+			Random rd = new Random();
+			double a = rd.NextDouble();
+			string para2 = a.ToString("f3").Replace(".", string.Empty);
+			string para1 = (DateTime.Now.ToUniversalTime() - new System.DateTime(1970, 1, 1)).TotalMilliseconds.ToString("f0");
+			string msg_id = para1 + para2;
+			word = Common.ConvertGB2312ToUTF8(word);
+			MSG.Content = word;
+			MSG.LocalID = msg_id;
+			MSG.ClientMsgId = msg_id;
+			csBaseRequest BaseRequest = new csBaseRequest();
+			BaseRequest.Uin = uin;
+			BaseRequest.Sid = sid;
+			BaseRequest.Skey = skey;
+			BaseRequest.DeviceID = device_id;
 
-            message _message = new message();
-            csMSG MSG = new csMSG();
-            MSG.Type = 1;
-            MSG.FromUserName = _me.UserName;
-            MSG.ToUserName = dst;
-            Random rd = new Random();
-            double a = rd.NextDouble();
-            string para2 = a.ToString("f3").Replace(".", string.Empty);
-            string para1 = (DateTime.Now.ToUniversalTime() - new System.DateTime(1970, 1, 1)).TotalMilliseconds.ToString("f0");
-            string msg_id = para1 + para2;
-            word = Common.ConvertGB2312ToUTF8(word);
-            MSG.Content = word;
-            MSG.LocalID = msg_id;
-            MSG.ClientMsgId = msg_id;
-            csBaseRequest BaseRequest = new csBaseRequest();
-            BaseRequest.Uin = uin;
-            BaseRequest.Sid = sid;
-            BaseRequest.Skey = skey;
-            BaseRequest.DeviceID = device_id;
+			_message.Msg = MSG;
+			_message.BaseRequest = BaseRequest;
 
-            _message.Msg = MSG;
-            _message.BaseRequest = BaseRequest;
+			string jsonStr = JsonConvert.SerializeObject(_message);
+			string ReturnVal = Http.WebPost2(url, jsonStr);
+			JObject jReturn = JsonConvert.DeserializeObject(ReturnVal) as JObject;
+			return jReturn["BaseResponse"]["Ret"].ToString() == "0";
 
-            string jsonStr = JsonConvert.SerializeObject(_message);
-            string ReturnVal = Http.WebPost2(url, jsonStr);
-            JObject jReturn = JsonConvert.DeserializeObject(ReturnVal) as JObject;
-            return jReturn["BaseResponse"]["Ret"].ToString() == "0";
 
-            //msg_id = str(int(time.time() * 1000)) + str(random.random())[:5].replace('.', '')
-            //word = self.to_unicode(word)
-            //    JObject sync_resul = JsonConvert.SerializeObject(sync_str) as JObject;
-            //params = {
-            //    'BaseRequest': self.base_request,
-            //    'Msg': {
-            //        "Type": 1,
-            //        "Content": word,
-            //        "FromUserName": self.my_account['UserName'],
-            //        "ToUserName": dst,
-            //        "LocalID": msg_id,
-            //        "ClientMsgId": msg_id
-            //    }
-            //}
-            //headers = {'content-type': 'application/json; charset=UTF-8'}
-            //data = json.dumps(params, ensure_ascii=False).encode('utf8')
-            //try:
-            //    r = self.session.post(url, data=data, headers=headers)
-            //except (ConnectionError, ReadTimeout):
-            //    return False
-            //dic = r.json()
-            //return dic['BaseResponse']['Ret'] == 0
+		}
 
-        }
-        #endregion
+		#endregion
 
-		//public static void appendText(string msg,RichTextBox richTextBox)
-		//{
-		//	try
-		//	{
-		//		msg = DateTime.Now.ToString("yyyy-MM-dd HH:mm:sss") + "\n" + msg;
-		//		if (richTextBox == null)
-		//		{
-		//			Console.WriteLine(msg);
-		//		}
-		//		else
-		//		{
-		//			//无参数,但是返回值为bool类型
-		//			richTextBox.Invoke(new Func<bool>(delegate ()
-		//			{
-		//				richTextBox.AppendText(msg);
-		//				return true; //返回值
-		//			}));
-		//		}
-		//	}
-		//	catch (Exception ex)
-		//	{
 
-		//	}
-		//}
-        //private void appendText(string msg)
-        //{
-
-        //    //try
-        //    //{
-        //    //    msg = DateTime.Now.ToString("yyyy-MM-dd HH:mm:sss") + "\n" + msg;
-        //    //    if (rTextbox == null)
-        //    //    {
-        //    //        Console.WriteLine(msg);
-        //    //    }
-        //    //    else
-        //    //    {
-        //    //        //无参数,但是返回值为bool类型
-        //    //        rTextbox.Invoke(new Func<bool>(delegate()
-        //    //        {
-        //    //            rTextbox.AppendText(msg);
-        //    //            return true; //返回值
-        //    //        }));
-        //    //    }
-        //    //}
-        //    //catch (Exception ex)
-        //    //{
-
-        //    //}
-        //}
-        /// <summary>
-        /// 判断用户是否在在联系人中
-        /// </summary>
-        /// <param name="Name"></param>
-        /// <returns></returns>
-        public bool is_contact(string Name)
+		/// <summary>
+		/// 判断用户是否在在联系人中
+		/// </summary>
+		/// <param name="Name"></param>
+		/// <returns></returns>
+		public bool is_contact(string Name)
         {
             foreach (Object u in contact_list)
             {

@@ -67,7 +67,7 @@
 			this.metroTabControl1.Location = new System.Drawing.Point(20, 60);
 			this.metroTabControl1.Multiline = true;
 			this.metroTabControl1.Name = "metroTabControl1";
-			this.metroTabControl1.SelectedIndex = 3;
+			this.metroTabControl1.SelectedIndex = 4;
 			this.metroTabControl1.Size = new System.Drawing.Size(901, 440);
 			this.metroTabControl1.TabIndex = 0;
 			this.metroTabControl1.UseSelectable = true;
@@ -253,7 +253,7 @@
 			this.metroTabPage5.Name = "metroTabPage5";
 			this.metroTabPage5.Size = new System.Drawing.Size(893, 398);
 			this.metroTabPage5.TabIndex = 4;
-			this.metroTabPage5.Text = "消息发布";
+			this.metroTabPage5.Text = "插件扩展";
 			this.metroTabPage5.VerticalScrollbarBarColor = true;
 			this.metroTabPage5.VerticalScrollbarHighlightOnWheel = false;
 			this.metroTabPage5.VerticalScrollbarSize = 10;

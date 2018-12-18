@@ -81,8 +81,8 @@
     </Compile>
     <Compile Include="Utility\Common.cs" />
     <Compile Include="Utility\Http.cs" />
-    <Compile Include="wxObject\wxMsg.cs" />
-    <Compile Include="wxObject\wxUser.cs" />
+    <Compile Include="Model\wxMsg.cs" />
+    <Compile Include="Model\wxUser.cs" />
     <EmbeddedResource Include="UI\Login.resx">
       <DependentUpon>Login.cs</DependentUpon>
     </EmbeddedResource>
