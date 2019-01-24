@@ -11,7 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
-
+using System.Web;
 namespace 藏锋微信机器人
 {
     public class robot
@@ -840,6 +840,9 @@ namespace 藏锋微信机器人
 						sb.Append("示例:“你好 ” “我生病了有点难受”");
 						sb.Append("------------------------------------------------");
 						replyMsg = sb.ToString();
+						var mid= WebWXUpLoadPicture(@"C:\Users\cangfeng\Pictures\微信图片_20180902223621.jpg");
+						if (!string.IsNullOrEmpty(mid.ToString())) ;
+						appendText("上传媒体:" + mid);
 					}
 					else
 					{
@@ -964,6 +967,308 @@ namespace 藏锋微信机器人
 			//所有流类型都要关闭流，否则会出现内存泄露问题
 			fs.Close();
 		}
+
+		
+		private string upload_media(string fpath,bool is_img=false)
+		{
+			int file_index = 0;
+			string mid = null;
+			if (File.Exists(fpath))
+			{
+				var url_1 = "https://file.wx.qq.com/cgi-bin/mmwebwx-bin/webwxuploadmedia?f=json";
+				var url_2 = "https://file2.wx.qq.com/cgi-bin/mmwebwx-bin/webwxuploadmedia?f=json";
+				FileInfo fileInfo = new FileInfo(fpath);
+				var flen = fileInfo.Length;
+				var ftype = MimeMapping.GetMimeMapping(fpath);
+				media media = new media();
+				media.id = "WU_FILE_" + file_index;
+				media.name = fileInfo.Name;
+				media.type = ftype;
+				media.lastModifiedDate = DateTime.Now.ToString("MM/dd/yyyy, HH:mm:ss G\\MT+0800 (CST)");
+				media.size = flen;
+				media.mediatype = is_img ? "pic" : "doc";
+				media.uploadmediarequest = new uploadmediarequest()
+				{
+					BaseRequest = getBaseRequest(),
+					ClientMediaId = Common.ConvertDateTimeToInt(DateTime.Now),
+					TotalLen = flen,
+					DataLen = flen
+				};
+				media.webwx_data_ticket = Common.GetCookie("webwx_data_ticket", Http.CookiesContainer);
+				media.pass_ticket = pass_ticket;
+				//media.filename = fileInfo
+				file_index += 1;
+
+				var medioJsonstr = JsonConvert.SerializeObject(media);
+				try
+				{
+					var response = Http.WebPost(url_1, medioJsonstr);
+					JObject result = JsonConvert.DeserializeObject(response) as JObject;
+
+					var uploadSucess = true;
+					if((int)result["BaseResponse"]["Ret"] != 0)
+					{
+						uploadSucess = false;
+						response = Http.WebPost(url_2, medioJsonstr);
+						result = JsonConvert.DeserializeObject(response) as JObject;
+						if ((int)result["BaseResponse"]["Ret"] != 0)
+						{
+							uploadSucess = false;
+							appendText("'Upload media failure.'");
+						}
+					}
+					if (uploadSucess)
+					{
+						mid = result["MediaId"].ToString();
+					}
+				}
+				catch(Exception ex)
+				{
+					appendText("上传媒体失败：" + ex.Message + "\n\r" + ex.StackTrace);
+				}
+			}
+			else
+			{
+				appendText($"{fpath}文件不存在!");
+			}
+			return mid;
+		}
+
+
+		//上传图片消息
+		private HttpResult WebWXUpLoadPicture(string filePath)
+		{
+			var _fileId = 0;
+			string boundary = "----WebKitFormBoundary" + DateTime.Now.Ticks.ToString("x");
+
+			var fileInfo = new FileInfo(filePath);
+
+			List<FormItemModel> data = new List<FormItemModel>();
+			//id
+			data.Add(new FormItemModel("id", "WU_FILE_" + _fileId++));
+			//name
+			data.Add(new FormItemModel("name", fileInfo.Name));
+			//type
+			data.Add(new FormItemModel("type", MimeMapping.GetMimeMapping(filePath)));
+			//lastModifiedDate
+			data.Add(new FormItemModel("lastModifiedDate", fileInfo.LastWriteTime.ToString("yyyy-MM-dd tt hh:mm:ss")));
+			//size
+			data.Add(new FormItemModel("size", fileInfo.Length.ToString()));
+			//mediatype
+			data.Add(new FormItemModel("mediatype", "pic"));
+			//uploadmediarequest
+			//string md5 = Utils.EncryptToMD5(fileInfo.Name + fileInfo.Length);
+			//PicModel pic = new PicModel()
+			//{
+			//	UploadType = 2,
+			//	BaseRequest = getBaseRequest(),
+			//	TotalLen = fileInfo.Length,
+			//	FromUserName = this.User.UserName,
+			//	ToUserName = model.UserName,
+			//	FileMd5 = md5
+			//};
+
+			var pic = new uploadmediarequest()
+			{
+				BaseRequest = getBaseRequest(),
+				ClientMediaId = Common.ConvertDateTimeToInt(DateTime.Now),
+				TotalLen = fileInfo.Length,
+			};
+
+			data.Add(new FormItemModel("uploadmediarequest", JsonConvert.SerializeObject(pic)));
+			//webwx_data_ticket
+			string ticket = Common.GetCookie("webwx_data_ticket", Http.CookiesContainer);
+			data.Add(new FormItemModel("webwx_data_ticket", ticket));
+			//pass_ticket
+			data.Add(new FormItemModel("pass_ticket", pass_ticket));
+			//file
+			data.Add(new FormItemModel("filename", fileInfo.Name, filePath));
+
+			var bytes = CreateFileByte(data, boundary);
+
+			HttpItem item = new HttpItem()
+			{
+				URL = "https://file.wx.qq.com/cgi-bin/mmwebwx-bin/webwxuploadmedia?f=json",
+				Method = "POST",
+				PostDataType = PostDataType.Byte,
+				ContentType = "multipart/form-data; boundary=" + boundary,
+				PostEncoding = Encoding.UTF8,
+				PostdataByte = bytes
+			};
+			HttpHelper http = new HttpHelper();
+
+			var rst = http.GetHtml(item);
+
+			return rst;
+		}
+		//实体类模型
+		public class FormItemModel
+		{
+			public FormItemModel(string key, string value)
+			{
+				this.Key = key;
+				this.Value = value;
+			}
+
+			public FormItemModel(string key, string name, string path)
+			{
+				this.Key = key;
+				this.Value = name;
+				this.FilePath = path;
+			}
+
+			/// <summary>  
+			/// 表单键，request["key"]  
+			/// </summary>  
+			public string Key { set; get; }
+			/// <summary>  
+			/// 表单值,上传文件时为文件名
+			/// </summary>  
+			public string Value { set; get; }
+			/// <summary>  
+			/// 是否是文件  
+			/// </summary>  
+			public bool IsFile
+			{
+				get
+				{
+					if (string.IsNullOrEmpty(FilePath) && FileContent == null) return false;
+
+					return true;
+				}
+			}
+
+			public byte[] GetFileBytes(Encoding encoding)
+			{
+				if (encoding == null) encoding = Encoding.UTF8;
+				if (IsFile)
+				{
+					try
+					{
+						if (!string.IsNullOrEmpty(FilePath))
+						{
+							using (FileStream fileStream = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+							{
+								byte[] bytes = new byte[fileStream.Length];
+								fileStream.Read(bytes, 0, bytes.Length);
+								return bytes;
+							}
+						}
+						else
+						{
+							byte[] bytes = new byte[FileContent.Length];
+							FileContent.Read(bytes, 0, bytes.Length);
+							FileContent.Seek(0, SeekOrigin.Begin);
+							return bytes;
+						}
+					}
+					catch (Exception)
+					{
+						return null;
+					}
+				}
+				else
+				{
+					return null;
+				}
+			}
+
+			//如果是文件,下面两个只要填一个即可.
+
+			/// <summary>  
+			/// 上传的文件路径 
+			/// </summary>  
+			public string FilePath { set; get; }
+
+			/// <summary>
+			/// 文件流
+			/// </summary>
+			public Stream FileContent { get; set; }
+		}
+
+		//核心postdata 字节创建方法
+		private byte[] CreateFileByte(List<FormItemModel> formItems, string boundary, Encoding encoding = null)
+		{
+			if (encoding == null) encoding = Encoding.UTF8;
+			Stream postStream = new MemoryStream();
+			//文件模板
+			string fileFormdataTemplate =
+			"\r\n--" + boundary +
+			"\r\nContent-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"" +
+			"\r\nContent-Type: application/octet-stream" +
+			"\r\n\r\n";
+			//文本数据模板  
+			string dataFormdataTemplate =
+				"\r\n--" + boundary +
+				"\r\nContent-Disposition: form-data; name=\"{0}\"" +
+				"\r\n\r\n{1}";
+
+			foreach (var item in formItems)
+			{
+				string formdata = null;
+				if (item.IsFile)
+				{   //文件
+					formdata = string.Format(
+					fileFormdataTemplate,
+					item.Key, //表单键  
+					item.Value);
+				}
+				else
+				{   //文本
+					formdata = string.Format(
+					dataFormdataTemplate,
+					item.Key,
+					item.Value);
+				}
+
+				byte[] formdataBytes = null;
+
+				if (postStream.Length == 0)
+					formdataBytes = encoding.GetBytes(formdata.Substring(2));
+				else
+					formdataBytes = encoding.GetBytes(formdata);
+
+				//写入流
+				postStream.Write(formdataBytes, 0, formdataBytes.Length);
+
+				if (item.IsFile)
+				{
+					var bytes = item.GetFileBytes(encoding);
+					if (bytes == null)
+					{
+						//this.PrintErrlog("读取文件错误:" + JsonHelper.SerializeObject(item));
+						throw new Exception("读取文件错误");
+					}
+					postStream.Write(bytes, 0, bytes.Length);
+				}
+			}
+
+			var footer = encoding.GetBytes("\r\n--" + boundary + "--\r\n");
+			postStream.Write(footer, 0, footer.Length);
+
+			byte[] buffer = StreamToBytes(postStream);
+
+			return buffer;
+
+		}
+		/// 将 Stream 转成 byte[]
+
+		public byte[] StreamToBytes(Stream stream)
+		{
+			byte[] bytes = new byte[stream.Length];
+			stream.Read(bytes, 0, bytes.Length);
+			// 设置当前流的位置为流的开始
+			stream.Seek(0, SeekOrigin.Begin);
+			return bytes;
+		}
+
+		/// 将 byte[] 转成 Stream
+
+		public Stream BytesToStream(byte[] bytes)
+		{
+			Stream stream = new MemoryStream(bytes);
+			return stream;
+		}
 		public String GetFormName(List<wxUser> userList,string id)
 		{
 			var name = ":未知";
@@ -976,6 +1281,16 @@ namespace 藏锋微信机器人
 				}
 			}
 			return name;
+		}
+
+		csBaseRequest getBaseRequest()
+		{
+			csBaseRequest BaseRequest = new csBaseRequest();
+			BaseRequest.Uin = uin;
+			BaseRequest.Sid = sid;
+			BaseRequest.Skey = skey;
+			BaseRequest.DeviceID = device_id;
+			return BaseRequest;
 		}
 
 		public bool send_msg_by_uid(string word, string dst = "filehelper")

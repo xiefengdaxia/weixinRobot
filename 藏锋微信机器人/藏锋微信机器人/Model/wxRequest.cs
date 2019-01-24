@@ -51,6 +51,25 @@ namespace 藏锋微信机器人
 	//发送的媒体的结构
 	public class media
 	{
+		public string id;
+		public string name;
+		public string type;
+		public string lastModifiedDate;
+		public long size;
+		public string mediatype;
+		public uploadmediarequest uploadmediarequest;
+		public string webwx_data_ticket;
+		public string pass_ticket;
+		public byte[] filename;
+	}
 
+	public class uploadmediarequest
+	{
+		public csBaseRequest BaseRequest;
+		public long ClientMediaId;
+		public long TotalLen;
+		public int StartPos = 0;
+		public long DataLen;
+		public int MediaType = 4;
 	}
 }

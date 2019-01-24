@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -31,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CSHelper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -65,6 +67,8 @@
   <ItemGroup>
     <Compile Include="Core\bot.cs" />
     <Compile Include="Core\robot.cs" />
+    <Compile Include="Model\MimeMapping.cs" />
+    <Compile Include="Model\wxRequest.cs" />
     <Compile Include="UI\Login.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -83,6 +87,8 @@
     <Compile Include="Utility\Http.cs" />
     <Compile Include="Model\wxMsg.cs" />
     <Compile Include="Model\wxUser.cs" />
+    <Compile Include="Utility\HttpCookieHelper.cs" />
+    <Compile Include="Utility\HttpHelper.cs" />
     <EmbeddedResource Include="UI\Login.resx">
       <DependentUpon>Login.cs</DependentUpon>
     </EmbeddedResource>
